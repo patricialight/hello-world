@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>Pat's chatBot messsaging</title>
+   </head>
+   
+   <script src = "/socket.io/socket.io.js"></script>
+   <script>
+      var socket = io();
+      function setUsername() {
+         socket.emit('add-user', document.getElementById('name').value);
+      }
+      var user;
+      socket.on('userExists', function(data) {
+         document.getElementById('error-container').innerHTML = data;
+      });
+      socket.on('userSet', function(data) {
+		
+		 //console.log('html : ' + data + socket.id + 'clients' + clients);
+         user = data.user;
+         document.body.innerHTML = '<input type = "text" id = "message" placeholder="message"><br><input type = "text" id = "receiver" placeholder="to"><br><button type = "button" name = "button" onclick = "sendMessage()">Send</button>\<div id = "message-container"></div>';
+      });
+      function sendMessage() {
+         var msg = document.getElementById('message').value;
+		 var receiver = document.getElementById('receiver').value;
+		
+         if(msg) {
+			//socket.to(socket.id).emit('private-message', {message: msg, user: user, receiver: receiver});
+           socket.emit('private-message', {message: msg, user: user, receiver: receiver});
+         }
+      }
+      socket.on('newmsg', function(data) {
+		//document.body.innerHTML = '<input type = "text" id = "message" placeholder="inside newmsg"><br>';
+        if(data) {
+           document.getElementById('message-container').innerHTML += '<div><b>' +
+            'from gearman' + '</b>: ' + data.message + '</div>';
+		  }
+      });
+   </script>
+   
+   <body>
+      <div id = "error-container"></div>
+      <input id = "name" type = "text" name = "name" value = "" 
+         placeholder = "Enter your name!">
+      <button type = "button" name = "button" onclick ="setUsername();">
+         Let me chat!
+      </button>
+   </body>
+</html>
